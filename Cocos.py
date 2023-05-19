@@ -56,23 +56,41 @@ class Cocos:
         movements = self.driver._driver.find_elements(By.XPATH, "//div[@class='grid-desktop']")
     
         time.sleep(5)
-        headers = ["Ticker", "Operation", "Day", "Price", "Quantity", "Total Movement", "Status"]
-        data = []
-    
+        buy_sell_data = []
+        deposit_extraction_data = []
+        
         for row in movements:
-             cells = row.find_elements(By.TAG_NAME, 'span')
-             ticker = cells[0].text.split()[0]
-             operation_parts = cells[0].text.split()
-             operation = operation_parts[1] if len(operation_parts) > 1 else ""
-             type = cells[1].text
-             day = cells[2].text
-             quantity = cells[3].text if cells[3].text else ""  # Check if quantity is empty
-             total_movement = cells[4].text
-             status = cells[5].text
-             data.append([ operation, type, day, quantity, total_movement])
-
-        headers = [ 'Operación', 'Tipo', 'Dia', 'Cantidad',  'Total movimiento']
-        table = tabulate(data, headers, tablefmt='grid')
-
-        print('\033[1m--------------- MOVIMIENTOS: COCOS CAPITAL-----------------\033[0m \n')
-        print(table)
+            cells = row.find_elements(By.TAG_NAME, 'span')
+            operation_parts = cells[0].text.split()
+            ticker = operation_parts[0]
+            if len(operation_parts) > 1:
+                operation = operation_parts[1]
+                type = cells[1].text
+                day = cells[2].text
+                quantity = cells[3].text if cells[3].text else ""
+                total_movement = cells[4].text
+                status = cells[5].text
+                buy_sell_data.append([ticker, operation, type, day, quantity, total_movement, status])
+            else:
+                operation = cells[1].text
+                type = ""  # Add an empty string for type in deposits/extractions
+                day = cells[2].text
+                quantity = cells[3].text if cells[3].text else ""
+                total_movement = cells[4].text
+                status = cells[5].text
+                deposit_extraction_data.append([ticker, operation, type, day, quantity, total_movement, status])
+        
+        buy_sell_headers = ['Ticker', 'Operación', 'Tipo', 'Día', 'Cantidad', 'Total Movimiento', 'Estado']
+        deposit_extraction_headers = ['', 'Operación', 'Tipo', 'Día', 'Cantidad', 'Total Movimiento', 'Estado']  # Add an empty string as the first header
+        
+        buy_sell_table = tabulate(buy_sell_data, buy_sell_headers, tablefmt='grid')
+        deposit_extraction_table = tabulate(deposit_extraction_data, deposit_extraction_headers, tablefmt='grid')
+        
+        print('\033[1m--------------- MOVIMIENTOS DE COMPRA Y VENTA: COCOS CAPITAL -----------------\033[0m \n')
+        print(buy_sell_table)
+        
+        print('\n')
+        
+        print('\033[1m--------------- MOVIMIENTOS DE DEPÓSITO Y EXTRACCIÓN: COCOS CAPITAL -----------------\033[0m \n')
+        print(deposit_extraction_table)
+        
