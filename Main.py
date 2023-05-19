@@ -10,4 +10,5 @@ load_dotenv()
 driver_1=Driver()
 cocos=Cocos(driver_1,os.getenv('USERNAME_KEY'),os.getenv('PASSWORD_KEY'))
 
-cocos.obtenerBalance()
+cocos.obtenerTodosMovimientos()
+# 
